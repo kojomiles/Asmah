@@ -1,0 +1,124 @@
+*Server.js*
+```
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+
+mongoose.connect('mongodb://localhost/vibez', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const app = express();
+
+const userSchema = new mongoose.Schema({
+  username: String,
+  email: String,
+  password: String
+});
+
+const User = mongoose.model('User', userSchema);
+
+app.use(cors());
+app.use(express.json());
+
+app.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
+  const user = new User({ username, email, password });
+  await user.save();
+  res.send('User registered successfully!');
+});
+
+app.listen(3000, () => {
+  console.log('Server listening on port 3000');
+});
+```
+
+
+*App.js*
+```
+import React, { useState } from 'react';
+import { View, Text, Button, TextInput } from 'react-native';
+import { Provider as PaperProvider } from 'react-native-paper';
+
+const App = () => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleRegister = async () => {
+    const response = await fetch('http://localhost:3000/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password })
+    });
+    const data = await response.json();
+    console.log(data);
+  };
+
+  return (
+    <PaperProvider>
+      <View>
+        <Text>Vibez App</Text>
+        <TextInput
+          placeholder="Username"
+          value={username}
+          onChangeText={(text) => setUsername(text)}
+        />
+        <TextInput
+          placeholder="Email"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+        />
+        <TextInput
+          placeholder="Password"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+          secureTextEntry
+        />
+        <Button title="Register" onPress={handleRegister} />
+      </View>
+    </PaperProvider>
+  );
+};
+
+export default App;
+```
+
+
+*Package.json*
+```
+{
+  "name": "vibez",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.11.15",
+    "cors": "^2.2.5"
+  }
+}
+Run the following``` commands:*
+
+```
+bash
+npm install
+npm start
+```
+
+
+*Open a new terminal and run:*
+
+```
+bash
+npx react-native run-android
+```
+
+
+or
+
+
+```
+bash
+npx react-native run-ios
+```
